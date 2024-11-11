@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import ssl
 import socket
 import datetime
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Function to check SSL certificate and return details
 def check_ssl_cert(hostname):
@@ -58,19 +60,22 @@ def home():
 # Endpoint to handle SSL checks
 @app.route('/check_ssl', methods=['POST'])
 def check_ssl():
-    data = request.get_json()
-    hostname = data.get('hostname')
-    
-    if not hostname:
-        return jsonify({"success": False, "error": "No hostname provided"}), 400
+    try:
+        data = request.get_json()
+        hostname = data.get('hostname')
+        
+        if not hostname:
+            return jsonify({"success": False, "error": "No hostname provided"}), 400
 
-    is_ssl, cert_info = check_ssl_cert(hostname)
-    if is_ssl:
-        return jsonify({"success": True, "certificate": cert_info})
-    else:
-        return jsonify({"success": False})
+        is_ssl, cert_info = check_ssl_cert(hostname)
+        if is_ssl:
+            return jsonify({"success": True, "certificate": cert_info})
+        else:
+            return jsonify({"success": False, "error": "SSL certificate not found"})
+    except Exception as e:
+        print(f"Error in /check_ssl: {e}")  # Log error for debugging
+        return jsonify({"success": False, "error": "Internal server error"}), 500
 
 # Run the app
 if __name__ == '__main__':
-    # Set host to 0.0.0.0 to ensure it works on Railway
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)), debug=True)
