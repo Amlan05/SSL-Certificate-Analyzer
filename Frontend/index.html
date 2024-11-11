@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSL Certificate Checker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>SSL Certificate Checker</h1>
+        <p>Enter a website URL to check if it has a valid SSL certificate.</p>
+        
+        <!-- Form to input hostname -->
+        <form id="ssl-form">
+            <input type="text" id="hostname" name="hostname" placeholder="e.g., www.example.com" required>
+            <button type="submit">Check SSL</button>
+        </form>
+
+        <!-- Result display area -->
+        <div id="result"></div>
+    </div>
+
+    <!-- JavaScript to handle form submission -->
+    <script src="script.js"></script>
+</body>
+</html>
