@@ -48,6 +48,12 @@ def check_ssl_cert(hostname):
 
     except ssl.SSLError:
         return False, None
+    
+
+@app.route('/')
+def home():
+    return "SSL Certificate Analyzer API is running"
+
 
 # Endpoint to handle SSL checks
 @app.route('/check_ssl', methods=['POST'])

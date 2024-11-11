@@ -4,10 +4,12 @@ document.getElementById('ssl-form').addEventListener('submit', function(event) {
     const hostname = document.getElementById('hostname').value;
     const resultDiv = document.getElementById('result');
     
+    // Clear previous results
     resultDiv.textContent = 'Checking...';
     resultDiv.className = '';
 
-    fetch('/check_ssl', {
+    // Use the full URL to the backend API on Railway
+    fetch('https://ssl-certificate-analyzer-production.up.railway.app/check_ssl', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
