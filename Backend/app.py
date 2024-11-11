@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import ssl
 import socket
 import datetime
 import os
 
-app = Flask(__name__, static_folder='../Frontend', static_url_path='')
+app = Flask(__name__)
 
 # Function to check SSL certificate and return details
 def check_ssl_cert(hostname):
@@ -48,12 +48,6 @@ def check_ssl_cert(hostname):
 
     except ssl.SSLError:
         return False, None
-
-# Serve the main HTML file for the root route
-@app.route('/')
-def serve_index():
-    # Serve index.html explicitly using an absolute path
-    return send_file(os.path.join(os.path.dirname(__file__), '../Frontend/index.html'))
 
 # Endpoint to handle SSL checks
 @app.route('/check_ssl', methods=['POST'])
