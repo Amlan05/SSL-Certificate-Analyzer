@@ -2,9 +2,12 @@ from flask import Flask, request, jsonify, send_from_directory
 import ssl
 import socket
 import datetime
+import os
 
-app = Flask(__name__, static_folder='../Frontend', static_url_path='/')
+# Initialize the Flask app and configure the static folder
+app = Flask(__name__, static_folder='../Frontend', static_url_path='')
 
+# Function to check SSL certificate and return details
 def check_ssl_cert(hostname):
     context = ssl.create_default_context()
     conn = context.wrap_socket(
@@ -15,19 +18,24 @@ def check_ssl_cert(hostname):
         conn.connect((hostname, 443))
         cert = conn.getpeercert()
 
+        # Get IP address
         ip_address = conn.getpeername()[0]
 
+        # Extract certificate details
         issuer = dict(x[0] for x in cert['issuer'])
         issued_by = issuer.get('organizationName', 'Unknown Issuer')
         subject = dict(x[0] for x in cert['subject'])
         common_name = subject.get('commonName', 'Unknown')
 
+        # Get expiration date and calculate days left
         not_after = cert['notAfter']
         expiration_date = datetime.datetime.strptime(not_after, "%b %d %H:%M:%S %Y %Z")
         days_left = (expiration_date - datetime.datetime.now()).days
 
+        # Set server type
         server_type = 'proxygen-bolt' if 'facebook.com' in hostname else 'Unknown'
 
+        # Prepare result dictionary
         cert_details = {
             "ip_address": ip_address,
             "issued_by": issued_by,
@@ -42,10 +50,13 @@ def check_ssl_cert(hostname):
     except ssl.SSLError:
         return False, None
 
+# Serve the main HTML file for the root route
 @app.route('/')
 def serve_index():
-    return send_from_directory('../Frontend', 'index.html')
+    # Serve the HTML file for the frontend
+    return send_from_directory(app.static_folder, 'index.html')
 
+# Endpoint to handle SSL checks
 @app.route('/check_ssl', methods=['POST'])
 def check_ssl():
     data = request.get_json()
@@ -60,5 +71,7 @@ def check_ssl():
     else:
         return jsonify({"success": False})
 
+# Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Set host to 0.0.0.0 to ensure it works on Railway
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)), debug=True)
